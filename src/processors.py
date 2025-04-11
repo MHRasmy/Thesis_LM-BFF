@@ -513,6 +513,24 @@ class TextClassificationProcessor(DataProcessor):
             return ['PERS', 'ORG', 'LOC', 'MISC','O']
         elif self.task_name == "my-ar-sa":
             return ['pos', 'neg']
+        elif self.task_name == "cognitive_distortions":
+            return [
+                "neutral",
+                "shoulds",
+                "overgeneralization",
+                "emotional reasoning",
+                "blaming",
+                "personalization",
+                "catastrophizing",
+                "jumping to conclusions",
+                "polarization",
+                "global labelling",
+                "fallacy of fairness",
+                "mental filtering",
+                "fallacy of change",
+                "control of fallacies",
+                "always being right",
+            ]
         else:
             raise Exception("task_name not supported.")
         
@@ -540,18 +558,26 @@ class TextClassificationProcessor(DataProcessor):
                 examples.append(InputExample(guid=guid, text_a=line[1], label=line[0]))
             elif self.task_name in ['my-ar-sa']:
                 examples.append(InputExample(guid=guid, text_a=line[1], label=line[0]))
+            elif self.task_name == "cognitive_distortions":
+                examples.append(InputExample(guid=guid, text_a=line[0], label=line[1]))
             else:
                 raise Exception("Task_name not supported.")
 
         return examples
         
 def text_classification_metrics(task_name, preds, labels):
-    accuracy = (preds == labels).mean()
-    precision_macro = precision_score(labels, preds, average='macro')
-    recall_macro = recall_score(labels, preds, average='macro')
-    f1_macro = f1_score(labels, preds, average='macro')
+    # accuracy = (preds == labels).mean()
+    # precision_macro = precision_score(labels, preds, average='macro')
+    # recall_macro = recall_score(labels, preds, average='macro')
+    # f1_macro = f1_score(labels, preds, average='macro')
     
-    return {"acc": accuracy, "f1_macro": f1_macro, "precision_macro": precision_macro, "recall_macro": recall_macro}
+    # return {"acc": accuracy, "f1_macro": f1_macro, "precision_macro": precision_macro, "recall_macro": recall_macro}
+    accuracy = (preds == labels).mean()
+    precision_weighted = precision_score(labels, preds, average='weighted', zero_division=0)
+    recall_weighted = recall_score(labels, preds, average='weighted') 
+    f1_weighted = f1_score(labels, preds, average='weighted')
+    
+    return {"acc": accuracy, "f1_weighted": f1_weighted, "precision_weighted": precision_weighted, "recall_weighted": recall_weighted}
 
 # Add your task to the following mappings
 
@@ -577,6 +603,7 @@ processors_mapping = {
     'ar-ner-corp': TextClassificationProcessor('ar-ner-corp'),
     'ar-en-ner': TextClassificationProcessor('ar-en-ner'),
     'my-ar-sa': TextClassificationProcessor("my-ar-sa"),
+    'cognitive_distortions': TextClassificationProcessor("cognitive_distortions"),
 }
 
 num_labels_mapping = {
@@ -600,6 +627,7 @@ num_labels_mapping = {
     "ar-ner-corp": 5,
     "ar-en-ner": 5,
     "my-ar-sa": 2,
+    "cognitive_distortions": 15,
 }
 
 output_modes_mapping = {
@@ -624,6 +652,7 @@ output_modes_mapping = {
     "ar-ner-corp": "classification",
     "ar-en-ner": "classification",
     "my-ar-sa": "classification",
+    "cognitive_distortions": "classification",
 }
 
 # Return a function that takes (task_name, preds, labels) as inputs
@@ -649,6 +678,7 @@ compute_metrics_mapping = {
     "ar-ner-corp": text_classification_metrics,
     "ar-en-ner": text_classification_metrics,
     "my-ar-sa": text_classification_metrics,
+    "cognitive_distortions": text_classification_metrics,
 }
 
 # For regression task only: median

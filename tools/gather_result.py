@@ -110,6 +110,9 @@ def main():
         elif condition['task_name'] == 'my-ar-sa':
             args.key = 'my-ar-sa_dev_eval_acc'
             args.test_key = 'my-ar-sa_test_eval_acc'
+        elif condition['task_name'] == 'cognitive_distortions':
+            args.key = 'cognitive_distortions_dev_eval_acc'
+            args.test_key = 'cognitive_distortions_test_eval_acc'
         else:
             raise NotImplementedError
 

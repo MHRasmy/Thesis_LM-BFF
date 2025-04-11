@@ -40,11 +40,11 @@ def get_glue_label(task, line):
         raise NotImplementedError
 
 def get_labels(data_dir, k, seed, task, print_name):
-    if print_name in ['sst-5', 'mr', 'cr', 'mpqa', 'subj', 'trec','ar-en-sa','ar-ner-corp','ar-en-ner','my-ar-sa']:
+    if print_name in ['sst-5', 'mr', 'cr', 'mpqa', 'subj', 'trec','ar-en-sa','ar-ner-corp','ar-en-ner','my-ar-sa', 'cognitive_distortions']:
         data = pd.read_csv(os.path.join(data_dir, print_name, '{}-{}'.format(k, seed), 'test.csv'), header=None).values.tolist()
         label_ids = np.zeros((len(data)), dtype=np.uint8)
         for i, example in enumerate(data):
-            if print_name in ['ar-en-sa']:
+            if print_name in ['ar-en-sa', 'cognitive_distortions']:
                 label_ids[i] = example[1]
             label_ids[i] = example[0]
        
@@ -181,6 +181,9 @@ def main():
         elif condition['task_name'] == 'my-ar-sa':
             args.key = 'my-ar-sa_dev_eval_acc'
             args.test_key = 'my-ar-sa_test_eval_acc'
+        elif condition['task_name'] == 'cognitive_distortions':
+            args.key = 'cognitive_distortions_dev_eval_acc'
+            args.test_key = 'cognitive_distortions_test_eval_acc'
         else:
             raise NotImplementedError
 
@@ -274,6 +277,7 @@ def main():
         'ar-ner-corp': 'ar-ner-corp',
         'ar-en-ner': 'ar-en-ner',
         'my-ar-sa': 'my-ar-sa',
+        'cognitive_distortions': 'cognitive_distortions',
     }
 
     # tokenizer = AutoTokenizer.from_pretrained('roberta-large')
@@ -298,13 +302,18 @@ def main():
         
         # Compute metrics
         preds = mean_logits.argmax(-1)
-        if condition['task_name'] in ['sst-5', 'mr', 'cr', 'mpqa', 'subj', 'trec','ar-en-sa','ar-ner-corp','ar-en-ner','my-ar-sa']:
+        if condition['task_name'] in ['sst-5', 'mr', 'cr', 'mpqa', 'subj', 'trec','ar-en-sa','ar-ner-corp','ar-en-ner','my-ar-sa', 'cognitive_distortions']:
             acc = simple_accuracy(preds, labels)
     
             # Calculate precision, recall, and F1 score
-            precision, recall, f1, _ = precision_recall_fscore_support(labels, preds, average='macro')
+            # precision, recall, f1, _ = precision_recall_fscore_support(labels, preds, average='macro')
 
-            metric = {"acc": acc, "precision_macro": precision, "recall_macro": recall, "f1_macro": f1}
+            # metric = {"acc": acc, "precision_macro": precision, "recall_macro": recall, "f1_macro": f1}
+    
+            # Calculate weighted precision, recall, and F1 score
+            precision, recall, f1, _ = precision_recall_fscore_support(labels, preds, average='weighted')
+            
+            metric = {"acc": acc, "precision_weighted": precision, "recall_weighted": recall, "f1_weighted": f1}
 
         ensemble_result[seed_id] = metric[args.test_key.split('_')[-1]]
         if len(args.test_key2) > 0:

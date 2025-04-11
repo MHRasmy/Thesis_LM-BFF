@@ -254,7 +254,7 @@ def load_dataset(task, data_dir):
         lines = pd.read_csv(os.path.join(data_dir, 'train.csv')).values.tolist()
         dataset = []
         for line in lines:
-            if(task in ['ar-en-sa']):
+            if(task in ['ar-en-sa', 'cognitive_distortions']):
                 dataset.append({'label': line[1], 'text': [line[0]]})
             else:
                 dataset.append({'label': line[0], 'text': [line[1]]})
@@ -291,6 +291,7 @@ def search_template(model, tokenizer, task_name, k, seed, beam, output_dir, data
         'ar-ner-corp':{'O': 'آخر', 'LOC': 'موقع', 'ORG': 'منظمة', 'PERS': 'شخص', 'MISC': 'متنوع'},
         'ar-en-ner':{'O': 'آخر', 'LOC': 'موقع', 'ORG': 'كيان', 'PERS': 'شخص', 'MISC': 'متنوع'},
         'my-ar-sa':{'pos':'جيد','neg':'سيء'},
+        'cognitive_distortions': {'neutral':'neutral', 'shoulds':'should', 'overgeneralization':'generalized', 'emotional reasoning':'emotional', 'blaming':'blame', 'personalization':'personal', 'catastrophizing':'catastrophe', 'jumping to conclusions':'jumping', 'polarization':'polarized', 'global labelling':'global', 'fallacy of fairness':'fair', 'mental filtering':'filtering', 'fallacy of change':'change', 'control of fallacies':'control', 'always being right':'right'},
     }
 
     mapping = map_of_mapping[task_name]
@@ -301,7 +302,7 @@ def search_template(model, tokenizer, task_name, k, seed, beam, output_dir, data
     os.makedirs(os.path.join(output_dir, task_name), exist_ok=True)
     f = open(os.path.join(output_dir, task_name, "{}-{}.txt".format(k, seed)), 'w')
 
-    if task_name in ['SST-2', 'sst-5', 'mr', 'cr', 'subj', 'trec', 'CoLA', 'mpqa','ar-en-sa','ar-ner-corp','ar-en-ner','my-ar-sa']:
+    if task_name in ['SST-2', 'sst-5', 'mr', 'cr', 'subj', 'trec', 'CoLA', 'mpqa','ar-en-sa','ar-ner-corp','ar-en-ner','my-ar-sa', 'cognitive_distortions']:
         # Single sentence tasks
         # We take two kinds of templates: put [MASK] at the beginning or the end
         template = "*cls**sentu_0**<extra_id_0>**label**<extra_id_1>**sep+*"

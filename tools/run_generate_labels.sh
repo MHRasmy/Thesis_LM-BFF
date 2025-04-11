@@ -125,6 +125,11 @@ for TASK in $TASKS; do
                 MAPPING="{'pos':'ممتاز','neg':'سيء'}"
                 TASK_EXTRA="--first_sent_limit 110 --other_sent_limit 60"
                 ;;
+            cognitive_distortions)
+                TEMPLATE=*cls**sent_0*_It_is*mask*.*sep+*
+                MAPPING="{'neutral':'neutral','shoulds':'should','overgeneralization':'generalized','emotional reasoning':'emotional','blaming':'blame','personalization':'personal','catastrophizing':'catastrophe','jumping to conclusions':'jumping','polarization':'polarized','global labelling':'global','fallacy of fairness':'fair','mental filtering':'filtering','fallacy of change':'change','control of fallacies':'control','always being right':'right'}"
+                TASK_EXTRA="--first_sent_limit 512"
+                ;;
         esac
 
         if [[ $LOAD_TEMPLATES = "true" ]]; then

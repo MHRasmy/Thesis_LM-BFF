@@ -12,7 +12,7 @@ def get_sentence(task, line):
             return ''
         else:
             return line[1]
-    elif task in ['ar-en-sa']:
+    elif task in ['ar-en-sa', 'cognitive_distortions']:
         return line[0]
     else:
         # GLUE tasks
@@ -60,7 +60,7 @@ def load_datasets(data_dir, task, do_test=False):
         if do_test:
             splits.append('test')
     for split in splits:
-        if task in ['mr', 'sst-5', 'subj', 'trec', 'cr', 'mpqa','ar-en-sa','ar-ner-corp','ar-en-ner','my-ar-sa']:
+        if task in ['mr', 'sst-5', 'subj', 'trec', 'cr', 'mpqa','ar-en-sa','ar-ner-corp','ar-en-ner','my-ar-sa', 'cognitive_distortions']:
             filename = os.path.join(data_dir, f"{split}.csv")
             dataset[split] = pd.read_csv(filename, header=None).values.tolist()
         else:
